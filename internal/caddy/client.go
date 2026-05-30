@@ -155,11 +155,6 @@ func (c *Client) AddSite(site Site) error {
 		"match":  []map[string]interface{}{{"host": []string{site.Domain}}},
 		"handle": handle,
 	}
-	if site.TLSEnabled {
-		config["tls"] = map[string]interface{}{
-			"email": site.TLEmail,
-		}
-	}
 	body, err := json.Marshal(config)
 	if err != nil {
 		return fmt.Errorf("marshal: %w", err)
