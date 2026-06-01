@@ -97,6 +97,14 @@ func (s *Service) GetContainerLogs(id string) (string, error) {
 	return logs, nil
 }
 
+func GetDockerComposeCmd() []string {
+	cmd := exec.Command("docker", "compose", "version")
+	if err := cmd.Run(); err == nil {
+		return []string{"docker", "compose"}
+	}
+	return []string{"docker-compose"}
+}
+
 func (s *Service) DeployCompose(name, content string) error {
 	// Validate project name to prevent directory traversal
 	for _, char := range name {
@@ -117,7 +125,8 @@ func (s *Service) DeployCompose(name, content string) error {
 
 	// Deploy compose in the background
 	go func() {
-		cmd := exec.Command("docker", "compose", "up", "-d")
+		args := append(GetDockerComposeCmd(), "up", "-d")
+		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Dir = appDir
 		_ = cmd.Run()
 	}()

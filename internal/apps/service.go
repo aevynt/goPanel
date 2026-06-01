@@ -9,6 +9,7 @@ import (
 
 	"github.com/aevynt/goPanel/internal/caddy"
 	"github.com/aevynt/goPanel/internal/config"
+	"github.com/aevynt/goPanel/internal/docker"
 	"github.com/aevynt/goPanel/internal/ports"
 )
 
@@ -64,7 +65,9 @@ func (s *Service) DeployApp(key string) (int, error) {
 	}
 
 	// Deploy using docker compose
-	cmd := exec.Command("docker", "compose", "-f", composePath, "up", "-d")
+	composeCmd := docker.GetDockerComposeCmd()
+	args := append(composeCmd, "-f", composePath, "up", "-d")
+	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Dir = appDir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
