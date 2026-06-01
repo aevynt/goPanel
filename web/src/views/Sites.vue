@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { h, ref, onMounted } from 'vue'
-import { useMessage, NButton, NPopconfirm, NTag, NRadioGroup, NRadio } from 'naive-ui'
+import { useMessage, NButton, NPopconfirm, NTag, NRadioGroup, NRadio, NIcon } from 'naive-ui'
+import { ShieldCheckmarkOutline, LockOpenOutline } from '@vicons/ionicons5'
 import { listSites, addSite, removeSite, caddyHealth } from '@/api'
 import type { Site } from '@/api/client'
 import PageHeader from '@/components/PageHeader.vue'
@@ -98,10 +99,24 @@ const columns = [
   {
     title: 'TLS',
     key: 'tls_enabled',
-    width: 70,
+    width: 120,
     render: (row: Site) => {
-      const color = row.tls_enabled ? '#16a34a' : '#5e5d59'
-      return h('span', { style: { color, fontSize: '13px' } }, row.tls_enabled ? 'Yes' : 'No')
+      const active = row.tls_enabled
+      return h(NTag, {
+        size: 'small',
+        type: active ? 'success' : 'default',
+        bordered: false,
+      }, {
+        default: () => [
+          h(NIcon, {
+            size: 14,
+            style: { marginRight: '4px', verticalAlign: 'middle' }
+          }, {
+            default: () => h(active ? ShieldCheckmarkOutline : LockOpenOutline)
+          }),
+          active ? 'HTTPS' : 'HTTP Only'
+        ]
+      })
     },
   },
   {

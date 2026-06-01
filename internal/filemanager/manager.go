@@ -1,6 +1,7 @@
 package filemanager
 
 import (
+	"archive/zip"
 	"fmt"
 	"io"
 	"io/fs"
@@ -139,6 +140,158 @@ func (m *Manager) Upload(path string, reader io.Reader) error {
 	defer dst.Close()
 	_, err = io.Copy(dst, reader)
 	return err
+}
+
+func (m *Manager) Zip(src, dst string) error {
+	safeSrc, err := m.safePath(src)
+	if err != nil {
+		return err
+	}
+	safeDst, err := m.safePath(dst)
+	if err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(filepath.Dir(safeDst), 0755); err != nil {
+		return fmt.Errorf("create zip parent dir: %w", err)
+	}
+
+	zipFile, err := os.Create(safeDst)
+	if err != nil {
+		return fmt.Errorf("create zip file: %w", err)
+	}
+	defer zipFile.Close()
+
+	archive := zip.NewWriter(zipFile)
+	defer archive.Close()
+
+	info, err := os.Stat(safeSrc)
+	if err != nil {
+		return fmt.Errorf("stat src: %w", err)
+	}
+
+	var baseDir string
+	if info.IsDir() {
+		baseDir = filepath.Dir(safeSrc)
+	} else {
+		baseDir = filepath.Dir(safeSrc)
+	}
+
+	err = filepath.Walk(safeSrc, func(filePath string, fileInfo os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if filePath == safeDst {
+			return nil
+		}
+
+		relPath, err := filepath.Rel(baseDir, filePath)
+		if err != nil {
+			return err
+		}
+		relPath = filepath.ToSlash(relPath)
+
+		header, err := zip.FileInfoHeader(fileInfo)
+		if err != nil {
+			return err
+		}
+
+		header.Name = relPath
+		if fileInfo.IsDir() {
+			header.Name += "/"
+		} else {
+			header.Method = zip.Deflate
+		}
+
+		writer, err := archive.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		if fileInfo.IsDir() {
+			return nil
+		}
+
+		file, err := os.Open(filePath)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		_, err = io.Copy(writer, file)
+		return err
+	})
+
+	if err != nil {
+		return fmt.Errorf("zip walk: %w", err)
+	}
+
+	return nil
+}
+
+func (m *Manager) Unzip(src, dst string) error {
+	safeSrc, err := m.safePath(src)
+	if err != nil {
+		return err
+	}
+	safeDst, err := m.safePath(dst)
+	if err != nil {
+		return err
+	}
+
+	reader, err := zip.OpenReader(safeSrc)
+	if err != nil {
+		return fmt.Errorf("open zip reader: %w", err)
+	}
+	defer reader.Close()
+
+	if err := os.MkdirAll(safeDst, 0755); err != nil {
+		return fmt.Errorf("create dest dir: %w", err)
+	}
+
+	for _, f := range reader.File {
+		cleanedPath := filepath.Clean(f.Name)
+		if strings.HasPrefix(cleanedPath, "..") || strings.Contains(cleanedPath, "/") && strings.HasPrefix(cleanedPath, "../") {
+			return fmt.Errorf("illegal file path in zip: %s", f.Name)
+		}
+
+		fpath := filepath.Join(safeDst, f.Name)
+		if !strings.HasPrefix(fpath, filepath.Clean(safeDst)) {
+			return fmt.Errorf("illegal file path (escapes destination) in zip: %s", f.Name)
+		}
+
+		if f.FileInfo().IsDir() {
+			if err := os.MkdirAll(fpath, os.ModePerm); err != nil {
+				return err
+			}
+			continue
+		}
+
+		if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+			return err
+		}
+
+		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		if err != nil {
+			return err
+		}
+
+		rc, err := f.Open()
+		if err != nil {
+			outFile.Close()
+			return err
+		}
+
+		_, err = io.Copy(outFile, rc)
+		outFile.Close()
+		rc.Close()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (m *Manager) toFileInfo(info fs.FileInfo, baseDir string) FileInfo {

@@ -123,6 +123,9 @@ onUnmounted(() => {
               <n-progress type="circle" :percentage="Math.round(stats?.cpu_percent || 0)" :width="100">
                 {{ Math.round(stats?.cpu_percent || 0) }}%
               </n-progress>
+              <div v-if="stats?.cpu_temp" class="stat-detail mt-2" style="font-size: 13px;">
+                Temp: <span style="font-weight: 600; color: var(--claude-accent, #c96442);">{{ stats.cpu_temp.toFixed(1) }}°C</span>
+              </div>
             </div>
           </div>
         </n-gi>

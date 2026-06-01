@@ -9,16 +9,17 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
-	"os"
 	"path/filepath"
 	"runtime"
 
-
+	"github.com/lhqua/gopanel/internal/alerts"
 	"github.com/lhqua/gopanel/internal/api"
-	"github.com/lhqua/gopanel/internal/auth"
+	"github.com/lhqua/gopanel/internal/apps"
+	"github.com/lhqua/gopanel/internal/bootstrap"
 	"github.com/lhqua/gopanel/internal/caddy"
 	"github.com/lhqua/gopanel/internal/config"
 	"github.com/lhqua/gopanel/internal/database"
+	"github.com/lhqua/gopanel/internal/docker"
 	"github.com/lhqua/gopanel/internal/filemanager"
 	"github.com/lhqua/gopanel/internal/ports"
 	"github.com/lhqua/gopanel/internal/servicemanager"
@@ -59,19 +60,6 @@ func run() error {
 		log.Println("secure JWT secret generated and saved successfully to config")
 	}
 
-	if err := os.MkdirAll(cfg.DataDir, 0755); err != nil {
-		return fmt.Errorf("failed to create data dir: %w", err)
-	}
-	if err := os.MkdirAll(cfg.BinariesDir, 0755); err != nil {
-		return fmt.Errorf("failed to create binaries dir: %w", err)
-	}
-	if err := os.MkdirAll(cfg.PublicDir, 0755); err != nil {
-		return fmt.Errorf("failed to create public dir: %w", err)
-	}
-	if err := os.MkdirAll(cfg.PublicSitesDir, 0755); err != nil {
-		return fmt.Errorf("failed to create public-sites dir: %w", err)
-	}
-
 	dbPath := filepath.Join(cfg.DataDir, "gopanel.db")
 	db, err := database.Open(dbPath)
 	if err != nil {
@@ -79,12 +67,18 @@ func run() error {
 	}
 	defer db.Close()
 
-	ensureDefaultAdmin(db)
+	// Perform bootstrap initialization
+	if err := bootstrap.Initialize(cfg, db); err != nil {
+		return fmt.Errorf("bootstrap failure: %w", err)
+	}
 
 	sm := servicemanager.New()
 	fm := filemanager.New(cfg.DataDir)
 	cc := caddy.NewClient(cfg.CaddyAdminURL)
 	pm := ports.NewManager()
+
+	dockerSvc := docker.NewService(cfg.DataDir)
+	appsSvc := apps.NewService(cfg, pm, cc)
 
 	subFS, err := fs.Sub(webFS, "web/dist")
 	if err != nil {
@@ -92,8 +86,9 @@ func run() error {
 		subFS = nil
 	}
 
-	srv := api.NewServer(cfg, db, sm, fm, cc, pm, subFS)
+	srv := api.NewServer(cfg, db, sm, fm, cc, pm, dockerSvc, appsSvc, subFS)
 	srv.StartWShub()
+	go alerts.StartMonitor(cfg, srv)
 
 	// Start public file server on public port
 	publicAddr := fmt.Sprintf(":%d", cfg.PublicPort)
@@ -124,15 +119,4 @@ func run() error {
 		return fmt.Errorf("server error: %w", err)
 	}
 	return nil
-}
-
-func ensureDefaultAdmin(db *database.DB) {
-	var count int
-	db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
-	if count == 0 {
-		hash, _ := auth.HashPassword("admin")
-		db.Exec("INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
-			"admin", hash, "admin")
-		log.Println("default admin user created (username: admin, password: admin)")
-	}
 }

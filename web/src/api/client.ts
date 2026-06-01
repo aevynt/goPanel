@@ -32,19 +32,22 @@ export default api
 export interface LoginRequest {
   username: string
   password: string
+  code?: string
 }
 
 export interface LoginResponse {
-  token: string
-  user_id: number
-  username: string
-  role: string
+  token?: string
+  user_id?: number
+  username?: string
+  role?: string
+  status?: string
 }
 
 export interface User {
   id: number
   username: string
   role: string
+  totp_enabled?: boolean
 }
 
 export interface Service {
@@ -112,6 +115,7 @@ export interface DashboardStats {
   kernel: string
   hostname: string
   cpu_percent: number
+  cpu_temp: number
   memory: {
     total: number
     used: number
@@ -138,6 +142,13 @@ export interface PanelSettings {
   log_level: string
   public_domain: string
   public_port: number
+  discord_webhook: string
+  telegram_token: string
+  telegram_chat_id: string
+  alert_temp_threshold: number
+  alert_cpu_threshold: number
+  alert_ram_threshold: number
+  alert_disk_threshold: number
 }
 
 export interface Share {
@@ -188,4 +199,22 @@ export interface UpdateInfo {
 	release?: UpdateRelease
 	checked_at: string
 	error?: string
+}
+
+export interface DockerContainer {
+  id: string
+  names: string
+  image: string
+  state: string
+  status: string
+  ports: string
+}
+
+export interface AppCatalogItem {
+  name: string
+  key: string
+  description: string
+  category: string
+  image: string
+  default_port: number
 }

@@ -1,5 +1,33 @@
-goPanel.exe
-web/node_modules
-web/dist
+# Binaries and executable files
+gopanel
+gopanel.exe
+gopanel-linux
+gopanel-windows.exe
+gopanel-darwin
+bin/
+*.exe
+
+# Node/Vite build assets
+node_modules/
+dist/
+
+# SQLite databases and WAL logs
 *.db
+*.db-journal
+*.db-wal
+
+# Configuration and Local State
 /etc/gopanel.json
+gopanel.json
+data/
+logs/
+apps/
+
+# IDE Workspace and OS specific files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+*~
+*.exe~

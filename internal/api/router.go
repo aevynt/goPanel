@@ -9,10 +9,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
+	"github.com/lhqua/gopanel/internal/apps"
 	"github.com/lhqua/gopanel/internal/auth"
 	"github.com/lhqua/gopanel/internal/caddy"
 	"github.com/lhqua/gopanel/internal/config"
 	"github.com/lhqua/gopanel/internal/database"
+	"github.com/lhqua/gopanel/internal/docker"
 	"github.com/lhqua/gopanel/internal/filemanager"
 	"github.com/lhqua/gopanel/internal/middleware"
 	"github.com/lhqua/gopanel/internal/ports"
@@ -29,6 +31,8 @@ type Server struct {
 	fm            *filemanager.Manager
 	caddy         *caddy.Client
 	pm            *ports.Manager
+	docker        *docker.Service
+	apps          *apps.Service
 	wsHub         *WebSocketHub
 	webFS         fs.FS
 	updateChecker *update.Checker
@@ -41,6 +45,8 @@ func NewServer(
 	fm *filemanager.Manager,
 	cc *caddy.Client,
 	pm *ports.Manager,
+	dockerSvc *docker.Service,
+	appsSvc *apps.Service,
 	webFS fs.FS,
 ) *Server {
 	jm := auth.NewJWTManager(cfg.JWTSecret, cfg.JWTExpiry)
@@ -52,6 +58,8 @@ func NewServer(
 		fm:            fm,
 		caddy:         cc,
 		pm:            pm,
+		docker:        dockerSvc,
+		apps:          appsSvc,
 		wsHub:         NewWebSocketHub(),
 		webFS:         webFS,
 		updateChecker: update.NewChecker(),
@@ -81,6 +89,10 @@ func (s *Server) Handler() http.Handler {
 			r.Use(middleware.AuthRequired(s.auth))
 
 			r.Get("/auth/me", s.Me)
+			r.Post("/auth/change-password", s.ChangePassword)
+			r.Post("/auth/2fa/setup", s.Setup2FA)
+			r.Post("/auth/2fa/enable", s.Enable2FA)
+			r.Post("/auth/2fa/disable", s.Disable2FA)
 
 			r.Route("/users", func(r chi.Router) {
 				r.Use(middleware.AdminOnly)
@@ -125,7 +137,25 @@ func (s *Server) Handler() http.Handler {
 					r.Post("/upload", s.UploadFile)
 					r.Delete("/", s.RemoveFile)
 					r.Post("/rename", s.RenameFile)
+					r.Post("/zip", s.ZipFile)
+					r.Post("/unzip", s.UnzipFile)
 				})
+			})
+
+			r.Route("/docker", func(r chi.Router) {
+				r.Use(middleware.AdminOnly)
+				r.Get("/containers", s.ListContainers)
+				r.Post("/containers/{id}/start", s.StartContainer)
+				r.Post("/containers/{id}/stop", s.StopContainer)
+				r.Post("/containers/{id}/restart", s.RestartContainer)
+				r.Get("/containers/{id}/logs", s.GetContainerLogs)
+				r.Post("/compose", s.DeployCompose)
+			})
+
+			r.Route("/apps", func(r chi.Router) {
+				r.Use(middleware.AdminOnly)
+				r.Get("/", s.ListApps)
+				r.Post("/deploy", s.DeployApp)
 			})
 
 			r.Route("/ports", func(r chi.Router) {

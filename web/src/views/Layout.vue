@@ -15,6 +15,8 @@ import {
   PeopleOutline,
   SettingsOutline,
   LogOutOutline,
+  CubeOutline,
+  AppsOutline,
 } from '@vicons/ionicons5'
 import type { UpdateInfo } from '@/api/client'
 import { checkUpdate } from '@/api'
@@ -52,7 +54,11 @@ const menuOptions: MenuOption[] = [
   { label: 'Sites', key: 'sites', icon: renderIcon(GlobeOutline) },
   { label: 'Public', key: 'public', icon: renderIcon(AlbumsOutline) },
   ...(auth.user?.role === 'admin'
-    ? [{ label: 'Users', key: 'users', icon: renderIcon(PeopleOutline) }]
+    ? [
+        { label: 'Docker', key: 'docker', icon: renderIcon(CubeOutline) },
+        { label: 'App Store', key: 'apps', icon: renderIcon(AppsOutline) },
+        { label: 'Users', key: 'users', icon: renderIcon(PeopleOutline) }
+      ]
     : []),
   { label: 'Settings', key: 'settings', icon: renderIcon(SettingsOutline) },
 ]

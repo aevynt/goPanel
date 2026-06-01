@@ -116,3 +116,43 @@ func (s *Server) RenameFile(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, map[string]string{"status": "renamed"})
 }
+
+func (s *Server) ZipFile(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Src string `json:"src"`
+		Dst string `json:"dst"`
+	}
+	if err := decodeJSON(r, &req); err != nil {
+		http.Error(w, `{"error":"invalid request"}`, http.StatusBadRequest)
+		return
+	}
+	if req.Src == "" || req.Dst == "" {
+		http.Error(w, `{"error":"src and dst are required"}`, http.StatusBadRequest)
+		return
+	}
+	if err := s.fm.Zip(req.Src, req.Dst); err != nil {
+		http.Error(w, `{"error":"`+err.Error()+`"}`, http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"status": "zipped"})
+}
+
+func (s *Server) UnzipFile(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Src string `json:"src"`
+		Dst string `json:"dst"`
+	}
+	if err := decodeJSON(r, &req); err != nil {
+		http.Error(w, `{"error":"invalid request"}`, http.StatusBadRequest)
+		return
+	}
+	if req.Src == "" || req.Dst == "" {
+		http.Error(w, `{"error":"src and dst are required"}`, http.StatusBadRequest)
+		return
+	}
+	if err := s.fm.Unzip(req.Src, req.Dst); err != nil {
+		http.Error(w, `{"error":"`+err.Error()+`"}`, http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"status": "unzipped"})
+}

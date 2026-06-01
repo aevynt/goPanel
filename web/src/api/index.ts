@@ -12,6 +12,8 @@ import api, {
   type Share,
   type FileEntry,
   type PublicDomainInfo,
+  type DockerContainer,
+  type AppCatalogItem,
 } from './client'
 import type { PanelSettings, UpdateInfo } from './client'
 
@@ -254,4 +256,65 @@ export async function setPublicDomain(domain: string): Promise<void> {
 export async function checkUpdate(): Promise<UpdateInfo> {
 	const res = await api.get('/updates/check')
 	return res.data
+}
+
+export async function listContainers(): Promise<DockerContainer[]> {
+  const res = await api.get('/docker/containers')
+  return res.data ?? []
+}
+
+export async function startContainer(id: string): Promise<void> {
+  await api.post(`/docker/containers/${id}/start`)
+}
+
+export async function stopContainer(id: string): Promise<void> {
+  await api.post(`/docker/containers/${id}/stop`)
+}
+
+export async function restartContainer(id: string): Promise<void> {
+  await api.post(`/docker/containers/${id}/restart`)
+}
+
+export async function getContainerLogs(id: string): Promise<string> {
+  const res = await api.get(`/docker/containers/${id}/logs`)
+  return res.data?.logs ?? ''
+}
+
+export async function deployCompose(name: string, content: string): Promise<void> {
+  await api.post('/docker/compose', { name, content })
+}
+
+export async function zipFile(src: string, dst: string): Promise<void> {
+  await api.post('/files/zip', { src, dst })
+}
+
+export async function unzipFile(src: string, dst: string): Promise<void> {
+  await api.post('/files/unzip', { src, dst })
+}
+
+export async function listApps(): Promise<AppCatalogItem[]> {
+  const res = await api.get('/apps')
+  return res.data ?? []
+}
+
+export async function deployApp(key: string): Promise<{ status: string; port: number; warning?: string }> {
+  const res = await api.post('/apps/deploy', { key })
+  return res.data
+}
+
+export async function changePassword(current_password: string, new_password: string): Promise<void> {
+  await api.post('/auth/change-password', { current_password, new_password })
+}
+
+export async function setup2FA(): Promise<{ secret: string; provisioning_uri: string }> {
+  const res = await api.post('/auth/2fa/setup')
+  return res.data
+}
+
+export async function enable2FA(code: string): Promise<void> {
+  await api.post('/auth/2fa/enable', { code })
+}
+
+export async function disable2FA(password: string): Promise<void> {
+  await api.post('/auth/2fa/disable', { password })
 }

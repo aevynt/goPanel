@@ -106,7 +106,7 @@ func (s *Server) DashboardWS(w http.ResponseWriter, r *http.Request) {
 	s.wsHub.register <- sConn
 
 	// send stats immediately on connect
-	stats := s.collectStats()
+	stats := s.CollectStats()
 	if data, err := json.Marshal(stats); err == nil {
 		sConn.WriteMessage(websocket.TextMessage, data)
 	}
@@ -131,7 +131,7 @@ func (s *Server) DashboardWS(w http.ResponseWriter, r *http.Request) {
 	for {
 		select {
 		case <-ticker.C:
-			stats := s.collectStats()
+			stats := s.CollectStats()
 			data, err := json.Marshal(stats)
 			if err != nil {
 				continue

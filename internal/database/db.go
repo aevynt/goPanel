@@ -86,6 +86,11 @@ func (d *DB) migrate() error {
 	if _, err := d.Exec(schema); err != nil {
 		return fmt.Errorf("exec schema: %w", err)
 	}
+
+	// Dynamic column migrations for 2FA support
+	d.Exec("ALTER TABLE users ADD COLUMN totp_secret TEXT DEFAULT ''")
+	d.Exec("ALTER TABLE users ADD COLUMN totp_enabled INTEGER DEFAULT 0")
+
 	d.Exec("INSERT OR IGNORE INTO panel_services (name) VALUES ('goPanel')")
 	return nil
 }

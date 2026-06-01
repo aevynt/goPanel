@@ -2,8 +2,8 @@
 import { h, ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMessage, NButton, NIcon, NSpace, NBreadcrumb, NBreadcrumbItem, NDataTable, NModal, NInput, NProgress } from 'naive-ui'
-import { FolderOpenOutline, DocumentOutline, TrashOutline, CloudUploadOutline, ArrowBackOutline, AddOutline } from '@vicons/ionicons5'
-import { listFiles, mkdir, uploadFile, removeFile, getFileBlob } from '@/api'
+import { FolderOpenOutline, DocumentOutline, TrashOutline, CloudUploadOutline, ArrowBackOutline, AddOutline, ArchiveOutline } from '@vicons/ionicons5'
+import { listFiles, mkdir, uploadFile, removeFile, getFileBlob, zipFile, unzipFile } from '@/api'
 import type { FileInfo } from '@/api/client'
 import PageHeader from '@/components/PageHeader.vue'
 import ModalFooter from '@/components/ModalFooter.vue'
@@ -222,6 +222,34 @@ async function handleDelete(file: FileInfo) {
   }
 }
 
+async function handleZip(file: FileInfo) {
+  const defaultZipPath = file.path + '.zip'
+  loading.value = true
+  try {
+    await zipFile(file.path, defaultZipPath)
+    message.success(`Zipped successfully to ${defaultZipPath}`)
+    load()
+  } catch (err: any) {
+    message.error(err.response?.data?.error || 'Failed to zip')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function handleUnzip(file: FileInfo) {
+  const parentPath = file.path.substring(0, file.path.lastIndexOf('/')) || '/'
+  loading.value = true
+  try {
+    await unzipFile(file.path, parentPath)
+    message.success(`Extracted successfully to ${parentPath}`)
+    load()
+  } catch (err: any) {
+    message.error(err.response?.data?.error || 'Failed to extract')
+  } finally {
+    loading.value = false
+  }
+}
+
 const columns = [
   {
     title: 'Name',
@@ -248,12 +276,46 @@ const columns = [
   { title: 'Mode', key: 'mode', width: 100 },
   { title: 'Modified', key: 'mod_time', width: 180 },
   {
-    title: '',
+    title: 'Actions',
     key: 'actions',
-    width: 80,
-    render: (row: FileInfo) => h(NButton, { size: 'tiny', quaternary: true, type: 'error', onClick: () => handleDelete(row) }, {
-      default: () => h(NIcon, { size: 16 }, { default: () => h(TrashOutline) }),
-    }),
+    width: 140,
+    render: (row: FileInfo) => {
+      const btns: any[] = []
+
+      // Zip action
+      btns.push(h(NButton, {
+        size: 'tiny',
+        quaternary: true,
+        type: 'info',
+        onClick: () => handleZip(row)
+      }, {
+        default: () => h(NIcon, { size: 16 }, { default: () => h(ArchiveOutline) }),
+      }))
+
+      // Unzip action if .zip file
+      if (!row.is_dir && row.name.toLowerCase().endsWith('.zip')) {
+        btns.push(h(NButton, {
+          size: 'tiny',
+          quaternary: true,
+          type: 'warning',
+          onClick: () => handleUnzip(row)
+        }, {
+          default: () => h(NIcon, { size: 16 }, { default: () => h(FolderOpenOutline) }),
+        }))
+      }
+
+      // Delete action
+      btns.push(h(NButton, {
+        size: 'tiny',
+        quaternary: true,
+        type: 'error',
+        onClick: () => handleDelete(row)
+      }, {
+        default: () => h(NIcon, { size: 16 }, { default: () => h(TrashOutline) }),
+      }))
+
+      return h(NSpace, { size: 'small' }, { default: () => btns })
+    },
   },
 ]
 

@@ -10,6 +10,8 @@ const message = useMessage()
 
 const username = ref('')
 const password = ref('')
+const code = ref('')
+const require2FA = ref(false)
 const loading = ref(false)
 
 async function handleLogin() {
@@ -19,8 +21,13 @@ async function handleLogin() {
   }
   loading.value = true
   try {
-    await auth.login(username.value, password.value)
-    router.push('/dashboard')
+    const res = await auth.login(username.value, password.value, require2FA.value ? code.value : undefined)
+    if (res.require_2fa) {
+      require2FA.value = true
+      message.info('Please enter your 6-digit Two-Factor Authentication code')
+    } else {
+      router.push('/dashboard')
+    }
   } catch (err: any) {
     message.error(err.response?.data?.error || 'Login failed')
   } finally {
@@ -36,7 +43,8 @@ async function handleLogin() {
         <h1 class="title">goPanel</h1>
         <p class="subtitle">Server Management Panel</p>
       </div>
-      <n-form @submit.prevent="handleLogin">
+
+      <n-form v-if="!require2FA" @submit.prevent="handleLogin">
         <n-form-item label="Username">
           <n-input v-model:value="username" placeholder="admin" />
         </n-form-item>
@@ -45,6 +53,22 @@ async function handleLogin() {
         </n-form-item>
         <n-button type="primary" block :loading="loading" attr-type="submit" size="large">
           Sign In
+        </n-button>
+      </n-form>
+
+      <n-form v-else @submit.prevent="handleLogin">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <p class="subtitle" style="color: var(--claude-accent, #c96442); font-weight: 500; margin-bottom: 8px;">Two-Factor Authentication</p>
+          <span style="font-size: 12.5px; color: var(--claude-text-secondary, #9a9990); line-height: 1.4; display: block;">Enter the 6-digit verification code from your authenticator app to complete your sign-in.</span>
+        </div>
+        <n-form-item label="Verification Code">
+          <n-input v-model:value="code" placeholder="e.g. 123456" maxlength="6" @keyup.enter="handleLogin" />
+        </n-form-item>
+        <n-button type="primary" block :loading="loading" attr-type="submit" size="large">
+          Verify & Sign In
+        </n-button>
+        <n-button secondary block class="mt-3" style="width: 100%; margin-top: 12px;" @click="require2FA = false; code = ''">
+          Back to Login
         </n-button>
       </n-form>
     </div>

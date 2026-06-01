@@ -25,6 +25,14 @@ type Config struct {
 	PublicPort     int    `json:"public_port"`
 	PublicDomain   string `json:"public_domain"`
 
+	DiscordWebhook     string  `json:"discord_webhook"`
+	TelegramToken      string  `json:"telegram_token"`
+	TelegramChatID     string  `json:"telegram_chat_id"`
+	AlertTempThreshold float64 `json:"alert_temp_threshold"`
+	AlertCPUThreshold  float64 `json:"alert_cpu_threshold"`
+	AlertRAMThreshold  float64 `json:"alert_ram_threshold"`
+	AlertDiskThreshold float64 `json:"alert_disk_threshold"`
+
 	configPath string `json:"-"`
 }
 
@@ -42,18 +50,25 @@ func Default() *Config {
 	}
 
 	return &Config{
-		Port:           3636,
-		DataDir:        dataDir,
-		BinariesDir:    binariesDir,
-		JWTSecret:      "change-me-in-production",
-		JWTExpiry:      24,
-		CaddyAdminURL:  "http://localhost:2019",
-		PanelDomain:    "",
-		LogLevel:       "info",
-		PublicDir:      publicDir,
-		PublicSitesDir: publicSitesDir,
-		PublicPort:     3637,
-		PublicDomain:   "",
+		Port:               3636,
+		DataDir:            dataDir,
+		BinariesDir:        binariesDir,
+		JWTSecret:          "change-me-in-production",
+		JWTExpiry:          24,
+		CaddyAdminURL:      "http://localhost:2019",
+		PanelDomain:        "",
+		LogLevel:           "info",
+		PublicDir:          publicDir,
+		PublicSitesDir:     publicSitesDir,
+		PublicPort:         3637,
+		PublicDomain:       "",
+		DiscordWebhook:     "",
+		TelegramToken:      "",
+		TelegramChatID:     "",
+		AlertTempThreshold: 80.0,
+		AlertCPUThreshold:  90.0,
+		AlertRAMThreshold:  90.0,
+		AlertDiskThreshold: 90.0,
 	}
 }
 
