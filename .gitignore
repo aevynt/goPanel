@@ -21,7 +21,7 @@ dist/
 gopanel.json
 data/
 logs/
-apps/
+/apps/
 
 # IDE Workspace and OS specific files
 .idea/
