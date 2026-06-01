@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"runtime"
 
@@ -58,6 +59,10 @@ func run() error {
 			return fmt.Errorf("failed to save generated JWT secret: %w", err)
 		}
 		log.Println("secure JWT secret generated and saved successfully to config")
+	}
+
+	if err := os.MkdirAll(cfg.DataDir, 0755); err != nil {
+		return fmt.Errorf("failed to create data directory: %w", err)
 	}
 
 	dbPath := filepath.Join(cfg.DataDir, "gopanel.db")
