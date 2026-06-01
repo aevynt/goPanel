@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/lhqua/gopanel/internal/servicemanager"
+	"github.com/aevynt/goPanel/internal/servicemanager"
 )
 
 func isSafeServiceName(name string) bool {

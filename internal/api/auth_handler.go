@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/lhqua/gopanel/internal/auth"
-	"github.com/lhqua/gopanel/internal/middleware"
+	"github.com/aevynt/goPanel/internal/auth"
+	"github.com/aevynt/goPanel/internal/middleware"
 )
 
 type loginRequest struct {

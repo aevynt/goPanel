@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/lhqua/gopanel/internal/caddy"
+	"github.com/aevynt/goPanel/internal/caddy"
 )
 
 func isValidDomain(domain string) bool {

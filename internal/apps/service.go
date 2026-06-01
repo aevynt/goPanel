@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/lhqua/gopanel/internal/caddy"
-	"github.com/lhqua/gopanel/internal/config"
-	"github.com/lhqua/gopanel/internal/ports"
+	"github.com/aevynt/goPanel/internal/caddy"
+	"github.com/aevynt/goPanel/internal/config"
+	"github.com/aevynt/goPanel/internal/ports"
 )
 
 type Service struct {

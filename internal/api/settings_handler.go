@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/lhqua/gopanel/internal/caddy"
+	"github.com/aevynt/goPanel/internal/caddy"
 )
 
 type SettingsResponse struct {

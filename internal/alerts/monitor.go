@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/lhqua/gopanel/internal/api"
-	"github.com/lhqua/gopanel/internal/config"
+	"github.com/aevynt/goPanel/internal/api"
+	"github.com/aevynt/goPanel/internal/config"
 )
 
 func StartMonitor(cfg *config.Config, srv *api.Server) {

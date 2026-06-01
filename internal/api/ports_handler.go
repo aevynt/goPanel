@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/lhqua/gopanel/internal/ports"
+	"github.com/aevynt/goPanel/internal/ports"
 )
 
 func (s *Server) ListPorts(w http.ResponseWriter, r *http.Request) {

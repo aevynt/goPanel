@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/lhqua/gopanel/internal/auth"
-	"github.com/lhqua/gopanel/internal/config"
-	"github.com/lhqua/gopanel/internal/database"
+	"github.com/aevynt/goPanel/internal/auth"
+	"github.com/aevynt/goPanel/internal/config"
+	"github.com/aevynt/goPanel/internal/database"
 )
 
 func Initialize(cfg *config.Config, db *database.DB) error {

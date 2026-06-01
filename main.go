@@ -12,17 +12,17 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/lhqua/gopanel/internal/alerts"
-	"github.com/lhqua/gopanel/internal/api"
-	"github.com/lhqua/gopanel/internal/apps"
-	"github.com/lhqua/gopanel/internal/bootstrap"
-	"github.com/lhqua/gopanel/internal/caddy"
-	"github.com/lhqua/gopanel/internal/config"
-	"github.com/lhqua/gopanel/internal/database"
-	"github.com/lhqua/gopanel/internal/docker"
-	"github.com/lhqua/gopanel/internal/filemanager"
-	"github.com/lhqua/gopanel/internal/ports"
-	"github.com/lhqua/gopanel/internal/servicemanager"
+	"github.com/aevynt/goPanel/internal/alerts"
+	"github.com/aevynt/goPanel/internal/api"
+	"github.com/aevynt/goPanel/internal/apps"
+	"github.com/aevynt/goPanel/internal/bootstrap"
+	"github.com/aevynt/goPanel/internal/caddy"
+	"github.com/aevynt/goPanel/internal/config"
+	"github.com/aevynt/goPanel/internal/database"
+	"github.com/aevynt/goPanel/internal/docker"
+	"github.com/aevynt/goPanel/internal/filemanager"
+	"github.com/aevynt/goPanel/internal/ports"
+	"github.com/aevynt/goPanel/internal/servicemanager"
 )
 
 //go:embed web/dist web/dist/assets/_*

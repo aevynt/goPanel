@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/lhqua/gopanel/internal/caddy"
-	"github.com/lhqua/gopanel/internal/publicshare"
+	"github.com/aevynt/goPanel/internal/caddy"
+	"github.com/aevynt/goPanel/internal/publicshare"
 )
 
 func isSafeShareID(id string) bool {

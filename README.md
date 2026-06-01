@@ -22,7 +22,7 @@
 ### Quick Linux Installer (Recommended)
 You can install and run `goPanel` on any modern Linux system using our automated setup script:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/lhqua/goPanel/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/aevynt/goPanel/master/install.sh | bash
 ```
 
 ### Build from Source

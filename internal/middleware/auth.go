@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/lhqua/gopanel/internal/auth"
+	"github.com/aevynt/goPanel/internal/auth"
 )
 
 type contextKey string

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lhqua/gopanel/internal/update"
+	"github.com/aevynt/goPanel/internal/update"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/host"

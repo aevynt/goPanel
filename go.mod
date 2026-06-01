@@ -1,4 +1,4 @@
-module github.com/lhqua/gopanel
+module github.com/aevynt/goPanel
 
 go 1.26.2
 
