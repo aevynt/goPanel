@@ -47,7 +47,7 @@ systemctl enable gopanel
 systemctl start gopanel
 
 echo "==> Install complete!"
-echo "goPanel is running on http://localhost:8080"
+echo "goPanel is running on http://localhost:3636"
 echo "Default login: admin / admin"
 echo ""
 echo "You can change the config at: $PANEL_CONFIG"

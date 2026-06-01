@@ -18,7 +18,7 @@ const message = useMessage()
 
 const settings = ref<PanelSettings>({
   panel_domain: '',
-  port: 8080,
+  port: 3636,
   log_level: 'info',
   public_domain: '',
   public_port: 3637,
