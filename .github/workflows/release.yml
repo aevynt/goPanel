@@ -49,7 +49,7 @@ jobs:
         run: |
           TAG="${{ github.ref_name }}"
           TAG="${TAG#v}"
-          sed -i "s/const AppVersion = \".*\"/const AppVersion = \"$TAG\"/" internal/update/checker.go
+          perl -pi -e "s/const AppVersion = \".*\"/const AppVersion = \"$TAG\"/" internal/update/checker.go
 
       - name: Build frontend
         working-directory: web
