@@ -81,6 +81,9 @@ func (s *Server) Handler() http.Handler {
 	})
 	r.Use(corsHandler.Handler)
 
+	// Root-level WebSocket endpoint matching the frontend Dashboard.vue connection URL
+	r.Get("/ws", s.DashboardWS)
+
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Post("/auth/login", s.Login)
 		r.Post("/auth/refresh", s.RefreshToken)
